@@ -118,18 +118,34 @@ def perform_a_star_search(initial_state, goal_state, heuristic_function):
     # Add the starting node to the open list.
     open_list.append(start_node)
     
+
+
+    
     # --- The Main A* Loop ---
     # We continue as long as there are nodes in the open list.
     while open_list:
         # 1. Select the node with the lowest f-cost.
         current_node = select_best_node(open_list)
+        
+        # 1b. Skip this node if we've already expanded this state.
+        if tuple(current_node.state) in visited_states:
+            continue
+            
         nodes_expanded += 1
         
         # Print progress to show which move the computer is considering.
         print(f"\n--- Exploring Node (f={current_node.f}, g={current_node.g}, h={current_node.h}) ---")
         display_board_grid(current_node.state)
         
-        # 2. Mark this state as visited.
+        # 2. Check if this node is the goal.
+        if current_node.h == 0:
+            print(f"  Goal found! (State matches the goal layout)")
+            return current_node, open_list, nodes_generated, nodes_expanded, True
+        
+        # 2b. Clear the queue to only consider options from this state.
+        open_list.clear()
+        
+        # 3. Mark this state as visited.
         visited_states.add(tuple(current_node.state))
         
         # 3. Find where the blank tile is.
@@ -172,15 +188,10 @@ def perform_a_star_search(initial_state, goal_state, heuristic_function):
             
             # Add the child node to the open list to be explored later.
             open_list.append(child_node)
-            
-            # 6. Check if this child is the goal.
-            if child_node.h == 0:
-                print(f"  Goal found! (State matches the goal layout)")
-                return child_node, open_list, nodes_generated, nodes_expanded, True
         
         # Safety break to prevent infinite loops during testing if something goes wrong.
-        if nodes_expanded > 1000:
-            print("\nError: Search limit (1000 expansions) reached. Stopping safety loop.")
+        if nodes_expanded > 5000:
+            print("\nError: Search limit (5000 expansions) reached. Stopping safety loop.")
             break
             
     # If the loop ends and no goal is found.
