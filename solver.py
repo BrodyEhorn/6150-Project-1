@@ -241,16 +241,38 @@ def main():
     print(f"Heuristic 1 (Misplaced Tiles): {h1_score}")
     print(f"Heuristic 2 (Manhattan Distance): {h2_score}")
 
-    # Test the start of the A* search.
+    print("\n" + "="*40)
+    print("RUNNING SEARCH WITH HEURISTIC 1 (Misplaced Tiles)")
+    print("="*40)
+    
+    # Run the A* search using H1.
+    last_node, open_list, gen_count, exp_count, goal_found = perform_a_star_search(state, goal_state, heuristics.calculate_misplaced_tiles)
+    
+    if goal_found:
+        print(f"\n--- SUCCESS (H1): Goal Reached ---")
+        display_solution_path(last_node)
+    else:
+        print(f"\n--- FAILURE (H1): Goal NOT Reached ---")
+    
+    print(f"\nSearch Metrics (H1):")
+    print(f"Total Nodes Generated: {gen_count}")
+    print(f"Total Nodes Expanded: {exp_count}")
+    print(f"Nodes currently in the open list: {len(open_list)}")
+
+    print("\n" + "="*40)
+    print("RUNNING SEARCH WITH HEURISTIC 2 (Manhattan Distance)")
+    print("="*40)
+
+    # Run the A* search using H2.
     last_node, open_list, gen_count, exp_count, goal_found = perform_a_star_search(state, goal_state, heuristics.calculate_manhattan_distance)
     
     if goal_found:
-        print(f"\n--- SUCCESS: Goal Reached ---")
+        print(f"\n--- SUCCESS (H2): Goal Reached ---")
         display_solution_path(last_node)
     else:
-        print(f"\n--- FAILURE: Goal NOT Reached ---")
+        print(f"\n--- FAILURE (H2): Goal NOT Reached ---")
     
-    print(f"\nSearch Metrics:")
+    print(f"\nSearch Metrics (H2):")
     print(f"Total Nodes Generated: {gen_count}")
     print(f"Total Nodes Expanded: {exp_count}")
     print(f"Nodes currently in the open list: {len(open_list)}")
