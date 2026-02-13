@@ -91,7 +91,6 @@ def perform_a_star_search(initial_state, goal_state, heuristic_function):
     open_list = []
     
     # The visited set stores states we have already expanded to avoid cycles.
-    # We store them as tuples because lists cannot be hashed in a set.
     visited_states = set()
     
     # Metrics to track the search progress.
@@ -144,7 +143,7 @@ def perform_a_star_search(initial_state, goal_state, heuristic_function):
             # Generate the new board state.
             new_state = operators.swap_tiles(current_node.state, blank_index, target_index)
             
-            # CRITICAL: Skip this move if we've already expanded this state before.
+            # Skip this move if we've already expanded this state before.
             if tuple(new_state) in visited_states:
                 continue
             
@@ -187,53 +186,44 @@ def perform_a_star_search(initial_state, goal_state, heuristic_function):
     # If the loop ends and no goal is found.
     return None, open_list, nodes_generated, nodes_expanded, False
 
-# The main function to test the current logic.
-def main():
-    # Loop until a valid board is provided.
+# Function to collect and validate a board state from the user.
+def get_board_input(board_name):
     while True:
-        # Prompt the user for a board state.
-        print("Enter the board state row by row (3 numbers with spaces between them, 0 for blank):")
+        print(f"\nEnter the {board_name} row by row (3 numbers with spaces between them, 0 for blank):")
         
-        # Initialize an empty list to store the board.
         state = []
-        
-        # Loop three times to collect each row.
         for i in range(3):
-            # Inner loop to ensure the current row is valid.
             while True:
-                # Collect input for a single row.
                 row_input = input(f"Enter Row {i + 1} (3 numbers): ")
-                
                 try:
-                    # Convert the row into integers.
                     row_data = [int(x) for x in row_input.split()]
-                    
-                    # Verify that exactly 3 numbers were entered.
                     if len(row_data) != 3:
                         print("Error: Please enter exactly 3 numbers for the row.")
                         continue
-                        
-                    # Add to our state list.
                     state.extend(row_data)
                     break
                 except ValueError:
-                    # Handle cases where the input is not an integer.
                     print("Error: Please enter only numbers separated by spaces.")
                     continue
         
-        # Check if the board is a valid 8-puzzle state (contains numbers 0-8 exactly once).
+        # Check if the board is valid (contains 0-8 exactly once).
         if sorted(state) == list(range(9)):
-            break
+            return state
         else:
-            print("\nError: The complete board must contain all numbers from 0 to 8 exactly once.")
-            print("Starting over...\n")
+            print(f"\nError: The {board_name} must contain all numbers from 0 to 8 exactly once.")
+            print("Please try again.\n")
+
+# The main function to test the current logic.
+def main():
+    # Get the initial board state.
+    state = get_board_input("Initial Board State")
+    
+    # Get the goal board state.
+    goal_state = get_board_input("Goal Board State")
     
     # Print the current board state.
     print("\nCurrent Board State:")
     display_board_grid(state)
-    
-    # Define the goal state.
-    goal_state = [1, 2, 3, 4, 5, 6, 7, 8, 0]
     
     # Print the goal state.
     print("\nGoal State:")
@@ -251,12 +241,14 @@ def main():
     print(f"Heuristic 1 (Misplaced Tiles): {h1_score}")
     print(f"Heuristic 2 (Manhattan Distance): {h2_score}")
 
-    # Test the start of the A* search (one expansion step).
+    # Test the start of the A* search.
     last_node, open_list, gen_count, exp_count, goal_found = perform_a_star_search(state, goal_state, heuristics.calculate_manhattan_distance)
     
     if goal_found:
         print(f"\n--- SUCCESS: Goal Reached ---")
         display_solution_path(last_node)
+    else:
+        print(f"\n--- FAILURE: Goal NOT Reached ---")
     
     print(f"\nSearch Metrics:")
     print(f"Total Nodes Generated: {gen_count}")
